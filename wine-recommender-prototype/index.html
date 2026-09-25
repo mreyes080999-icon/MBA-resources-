@@ -1,0 +1,637 @@
+<title>Sommelier Exprés</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F5F2EF;
+    --surface:#FFFFFF;
+    --surface-2:#ECE6E1;
+    --text:#251B1F;
+    --text-muted:#6C5F63;
+    --border:#DED4CE;
+    --accent:#7A2340;
+    --accent-strong:#5A1830;
+    --accent-contrast:#FFFFFF;
+    --gold:#A9824C;
+    --success-bg:#E6F0E3;
+    --success-text:#2B5D34;
+    --warn-bg:#FBF0DC;
+    --warn-text:#7A4E12;
+    --chip-bg:#ECE6E1;
+    --chip-active-bg:#7A2340;
+    --chip-active-text:#FFFFFF;
+    --shadow:0 2px 14px rgba(37,27,31,0.08);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#191315;
+      --surface:#231B1E;
+      --surface-2:#2B2226;
+      --text:#F1E9EA;
+      --text-muted:#B7A8AC;
+      --border:#3B2E33;
+      --accent:#E5769B;
+      --accent-strong:#EE93B0;
+      --accent-contrast:#241017;
+      --gold:#D8B876;
+      --success-bg:#1F2E1E;
+      --success-text:#9FD79B;
+      --warn-bg:#382A14;
+      --warn-text:#E8BE72;
+      --chip-bg:#2B2226;
+      --chip-active-bg:#E5769B;
+      --chip-active-text:#241017;
+      --shadow:0 2px 16px rgba(0,0,0,0.55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#191315;
+    --surface:#231B1E;
+    --surface-2:#2B2226;
+    --text:#F1E9EA;
+    --text-muted:#B7A8AC;
+    --border:#3B2E33;
+    --accent:#E5769B;
+    --accent-strong:#EE93B0;
+    --accent-contrast:#241017;
+    --gold:#D8B876;
+    --success-bg:#1F2E1E;
+    --success-text:#9FD79B;
+    --warn-bg:#382A14;
+    --warn-text:#E8BE72;
+    --chip-bg:#2B2226;
+    --chip-active-bg:#E5769B;
+    --chip-active-text:#241017;
+    --shadow:0 2px 16px rgba(0,0,0,0.55);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"IBM Plex Sans", system-ui, sans-serif;
+    padding-inline:16px;
+    padding-block:24px;
+    display:flex;
+    justify-content:center;
+  }
+  .app{width:100%;max-width:640px;display:flex;flex-direction:column;gap:16px;}
+
+  h1,h2,h3{font-family:"Fraunces", Georgia, serif;text-wrap:balance;margin:0;}
+  .brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .brand h1{font-size:1.6rem;font-weight:700;}
+  .brand .tagline{font-size:0.85rem;color:var(--text-muted);}
+
+  .demo-bar{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:10px 12px;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    font-size:0.82rem;
+  }
+  .demo-bar span.label{color:var(--text-muted);}
+  .demo-chip{
+    font-family:inherit;
+    font-size:0.8rem;
+    background:var(--surface);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:6px 12px;
+    cursor:pointer;
+  }
+  .demo-chip:hover{border-color:var(--accent);}
+  .demo-chip:focus-visible, button:focus-visible, [role="button"]:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  .steps{display:flex;gap:8px;align-items:center;justify-content:center;}
+  .steps .dot{
+    width:9px;height:9px;border-radius:50%;background:var(--border);
+  }
+  .steps .dot.active{background:var(--accent);}
+  .steps .dot.done{background:var(--gold);}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+
+  fieldset{border:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  legend{font-weight:600;font-size:0.95rem;padding:0;margin-bottom:2px;}
+  .hint{font-size:0.78rem;color:var(--text-muted);margin-top:-4px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    font-family:inherit;
+    font-size:0.88rem;
+    background:var(--chip-bg);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:8px 14px;
+    cursor:pointer;
+    transition:background .1s,color .1s;
+  }
+  .chip[aria-pressed="true"]{
+    background:var(--chip-active-bg);
+    color:var(--chip-active-text);
+    border-color:transparent;
+  }
+
+  .btn{
+    font-family:"IBM Plex Sans",sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    border-radius:12px;
+    padding:12px 18px;
+    border:1px solid transparent;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--accent);color:var(--accent-contrast);}
+  .btn-primary:hover{background:var(--accent-strong);}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--border);}
+  .btn-ghost:hover{border-color:var(--accent);}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;}
+  .actions .btn{flex:1;min-width:140px;}
+
+  .wine-card{border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--surface);}
+  .wine-card.primary{border-color:var(--accent);border-width:2px;}
+  .wine-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+  .wine-name{font-size:1.25rem;font-weight:700;}
+  .wine-meta{font-size:0.82rem;color:var(--text-muted);}
+  .score{
+    font-family:"IBM Plex Mono",monospace;
+    font-variant-numeric:tabular-nums;
+    font-size:0.85rem;
+    background:var(--surface-2);
+    border:1px solid var(--gold);
+    color:var(--text);
+    border-radius:999px;
+    padding:4px 10px;
+    white-space:nowrap;
+  }
+  .badge-label{
+    font-size:0.68rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);
+  }
+  .reason{font-size:0.92rem;line-height:1.45;}
+  .price-line{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:0.9rem;}
+  .warn-chip{
+    background:var(--warn-bg);color:var(--warn-text);border-radius:8px;padding:6px 10px;font-size:0.78rem;
+  }
+  .demo-tag{
+    font-size:0.68rem;letter-spacing:0.05em;text-transform:uppercase;color:var(--text-muted);
+    border:1px solid var(--border);border-radius:6px;padding:2px 6px;display:inline-block;
+  }
+
+  .purchase-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:520px){.purchase-grid{grid-template-columns:1fr;}}
+  .purchase-card{border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--surface-2);}
+  .purchase-card h3{font-size:1.05rem;}
+  .purchase-price{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:1.4rem;font-weight:600;}
+  .purchase-desc{font-size:0.85rem;color:var(--text-muted);line-height:1.4;}
+
+  .confirm-panel{
+    background:var(--success-bg);color:var(--success-text);border-radius:12px;padding:14px 16px;font-size:0.9rem;line-height:1.5;
+  }
+  .confirm-panel strong{display:block;margin-bottom:4px;}
+
+  footer.disclaimer{
+    text-align:center;font-size:0.72rem;color:var(--text-muted);padding-block:4px;
+  }
+  [hidden]{display:none!important;}
+</style>
+
+<div class="app">
+  <div class="brand">
+    <h1>Sommelier Exprés</h1>
+    <span class="tagline">Responde 5 preguntas, recibe una recomendación explicada</span>
+  </div>
+
+  <div class="demo-bar">
+    <span class="label">Cargar perfil de ejemplo:</span>
+    <button class="demo-chip" data-demo="cena-especial" type="button">Cena especial en pareja</button>
+    <button class="demo-chip" data-demo="tarde-casual" type="button">Tarde casual con amigos</button>
+    <button class="demo-chip" data-demo="regalo-cuidado" type="button">Regalo para alguien que no conozco</button>
+  </div>
+
+  <div class="steps" role="img" aria-label="Paso actual del flujo">
+    <span class="dot" data-dot="1"></span>
+    <span class="dot" data-dot="2"></span>
+    <span class="dot" data-dot="3"></span>
+  </div>
+
+  <!-- PASO 1: preferencias -->
+  <section class="card" id="step-1">
+    <div>
+      <h2>¿Qué estás buscando?</h2>
+      <p class="hint">Catálogo y precios de demostración — sirven para probar el flujo, no representan inventario real.</p>
+    </div>
+
+    <fieldset role="group" aria-label="Ocasión">
+      <legend>Ocasión</legend>
+      <div class="chip-row" id="group-occasion"></div>
+    </fieldset>
+
+    <fieldset role="group" aria-label="Sabores preferidos">
+      <legend>Sabores preferidos <span class="hint" style="margin:0;">(elige hasta 3, opcional)</span></legend>
+      <div class="chip-row" id="group-flavors"></div>
+    </fieldset>
+
+    <fieldset role="group" aria-label="Dulzor">
+      <legend>Dulzor</legend>
+      <div class="chip-row" id="group-sweetness"></div>
+    </fieldset>
+
+    <fieldset role="group" aria-label="Intensidad">
+      <legend>Intensidad / cuerpo</legend>
+      <div class="chip-row" id="group-intensity"></div>
+    </fieldset>
+
+    <fieldset role="group" aria-label="Presupuesto por botella">
+      <legend>Presupuesto por botella</legend>
+      <div class="chip-row" id="group-budget"></div>
+    </fieldset>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btn-recommend" type="button" style="flex:1 1 100%;">Ver mi recomendación →</button>
+    </div>
+  </section>
+
+  <!-- PASO 2: recomendación -->
+  <section class="card" id="step-2" hidden>
+    <div>
+      <h2>Esto te recomendamos</h2>
+      <p class="hint">Explicación basada en tus respuestas. Elige con cuál seguir.</p>
+    </div>
+    <div id="result-primary"></div>
+    <div id="result-alternative"></div>
+    <div class="actions">
+      <button class="btn btn-ghost" id="btn-back-1" type="button">‹ Ajustar respuestas</button>
+    </div>
+  </section>
+
+  <!-- PASO 3: botella o muestras -->
+  <section class="card" id="step-3" hidden>
+    <div>
+      <h2 id="choice-title">¿Botella o muestras?</h2>
+      <p class="hint" id="choice-subtitle"></p>
+    </div>
+    <div class="purchase-grid">
+      <div class="purchase-card">
+        <span class="demo-tag">Simulación</span>
+        <h3>Botella completa</h3>
+        <div class="purchase-price" id="price-bottle"></div>
+        <p class="purchase-desc">750 ml. Ideal si ya confías en tu elección y quieres disfrutarla completa.</p>
+        <button class="btn btn-primary" id="btn-buy-bottle" type="button">Elegir botella (demo)</button>
+      </div>
+      <div class="purchase-card">
+        <span class="demo-tag">Simulación</span>
+        <h3>Set de muestras</h3>
+        <div class="purchase-price" id="price-sample"></div>
+        <p class="purchase-desc">Porción de 50 ml. Ideal para probarla antes de comprar la botella completa.</p>
+        <button class="btn btn-primary" id="btn-buy-sample" type="button">Elegir muestras (demo)</button>
+      </div>
+    </div>
+    <div class="confirm-panel" id="confirm-panel" hidden></div>
+    <div class="actions">
+      <button class="btn btn-ghost" id="btn-back-2" type="button">‹ Volver a la recomendación</button>
+      <button class="btn btn-ghost" id="btn-restart" type="button">Empezar de nuevo</button>
+    </div>
+  </section>
+
+  <footer class="disclaimer">Prototipo académico — catálogo, precios y disponibilidad son datos de demostración. Ninguna compra aquí es real.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- Lógica de recomendación (idéntica y sincronizada con logic.js, probada con
+  // test-logic.mjs: 39/39 casos OK, incluyendo perfiles semilla y casos límite). Se
+  // embebe aquí como script clásico (no ES module) para que el archivo se pueda abrir
+  // con doble click, sin servidor y sin bloqueos de CORS por file://.
+
+  var FLAVOR_LABELS = {
+    frutal: "frutal", citrico: "cítrico", floral: "floral", especiado: "especiado",
+    terroso: "terroso", ahumado_roble: "ahumado / roble", herbal: "herbal", bayas_rojas: "bayas rojas"
+  };
+  var SWEETNESS_LABELS = {1:"seco",2:"semi-seco",3:"dulce"};
+  var INTENSITY_LABELS = {1:"ligero",2:"medio",3:"intenso"};
+  var OCCASION_LABELS = {
+    casual:"una ocasión casual", celebracion:"una celebración", regalo:"un regalo", cena_maridaje:"una cena con maridaje"
+  };
+
+  var CATALOG = [
+    {id:"malbec-cosecha-roja",name:"Cosecha Roja Malbec",type:"tinto",sweetness:1,intensity:3,flavors:["bayas_rojas","especiado","ahumado_roble"],priceBottle:28,region:"Mendoza (demo)"},
+    {id:"cabernet-vega-alta",name:"Vega Alta Cabernet Sauvignon",type:"tinto",sweetness:1,intensity:3,flavors:["terroso","ahumado_roble","especiado"],priceBottle:45,region:"Valle Central (demo)"},
+    {id:"pinot-piedra-suave",name:"Piedra Suave Pinot Noir",type:"tinto",sweetness:1,intensity:2,flavors:["bayas_rojas","floral","frutal"],priceBottle:32,region:"Casablanca (demo)"},
+    {id:"tinto-sencillo",name:"Sencillo Tinto de Mesa",type:"tinto",sweetness:2,intensity:2,flavors:["frutal","bayas_rojas"],priceBottle:12,region:"Valle Central (demo)"},
+    {id:"chardonnay-brisa-dorada",name:"Brisa Dorada Chardonnay",type:"blanco",sweetness:2,intensity:2,flavors:["frutal","ahumado_roble","citrico"],priceBottle:22,region:"Valle de Uco (demo)"},
+    {id:"sauvignon-jardin-blanco",name:"Jardín Blanco Sauvignon Blanc",type:"blanco",sweetness:1,intensity:1,flavors:["citrico","herbal","floral"],priceBottle:16,region:"Casablanca (demo)"},
+    {id:"riesling-flor-de-niebla",name:"Flor de Niebla Riesling",type:"blanco",sweetness:3,intensity:1,flavors:["frutal","floral","citrico"],priceBottle:19,region:"Andes (demo)"},
+    {id:"blanco-roble-reserva",name:"Roble Blanco Reserva",type:"blanco",sweetness:1,intensity:2,flavors:["ahumado_roble","frutal","herbal"],priceBottle:38,region:"Casablanca (demo)"},
+    {id:"rosado-petalo",name:"Pétalo Rosado",type:"rosado",sweetness:2,intensity:1,flavors:["floral","bayas_rojas","frutal"],priceBottle:14,region:"Colchagua (demo)"},
+    {id:"rosado-verano-syrah",name:"Verano Rosado Syrah",type:"rosado",sweetness:2,intensity:2,flavors:["bayas_rojas","especiado","frutal"],priceBottle:18,region:"Colchagua (demo)"},
+    {id:"espumante-burbuja-clasica",name:"Burbuja Clásica Extra Brut",type:"espumante",sweetness:1,intensity:1,flavors:["citrico","floral","herbal"],priceBottle:24,region:"Valle del Sol (demo)"},
+    {id:"espumante-celebra-rose",name:"Celebra Rosé Espumante",type:"espumante",sweetness:2,intensity:1,flavors:["bayas_rojas","frutal","floral"],priceBottle:29,region:"Valle del Sol (demo)"}
+  ];
+
+  var BUDGET_TIERS = [
+    {id:"lt15",label:"Menos de $15",tope:15},
+    {id:"15-30",label:"$15 – $30",tope:30},
+    {id:"30-50",label:"$30 – $50",tope:50},
+    {id:"50+",label:"$50 o más",tope:Infinity}
+  ];
+
+  var OCCASION_AFFINITY = {
+    casual:{tinto:4,blanco:6,rosado:10,espumante:6},
+    celebracion:{tinto:4,blanco:4,rosado:6,espumante:10},
+    regalo:{tinto:8,blanco:6,rosado:4,espumante:8},
+    cena_maridaje:{tinto:10,blanco:8,rosado:4,espumante:2}
+  };
+
+  var WEIGHTS = {flavor:40,sweetness:25,intensity:25,occasion:10};
+
+  function samplePrice(bottlePrice){ return Math.max(6, Math.round(bottlePrice*0.2)); }
+
+  function scoreWine(wine, answers){
+    var hasFlavors = Array.isArray(answers.flavors) && answers.flavors.length>0;
+    var activeWeights = {flavor:WEIGHTS.flavor,sweetness:WEIGHTS.sweetness,intensity:WEIGHTS.intensity,occasion:WEIGHTS.occasion};
+    if(!hasFlavors) delete activeWeights.flavor;
+    var totalWeight = Object.keys(activeWeights).reduce(function(sum,k){return sum+activeWeights[k];},0);
+    var components = {};
+    if(hasFlavors){
+      var overlap = answers.flavors.filter(function(f){return wine.flavors.indexOf(f)!==-1;});
+      components.flavor = overlap.length/answers.flavors.length;
+      components._flavorOverlap = overlap;
+    }
+    components.sweetness = 1-Math.abs(answers.sweetness-wine.sweetness)/2;
+    components.intensity = 1-Math.abs(answers.intensity-wine.intensity)/2;
+    var affinityTable = OCCASION_AFFINITY[answers.occasion];
+    var affinity = (affinityTable && affinityTable[wine.type]!==undefined) ? affinityTable[wine.type] : 5;
+    components.occasion = affinity/10;
+    var weighted = 0;
+    Object.keys(activeWeights).forEach(function(k){ weighted += components[k]*activeWeights[k]; });
+    var score = Math.round((weighted/totalWeight)*100);
+    return {wine:wine, score:score, components:components};
+  }
+
+  function buildReason(candidate, answers){
+    var wine = candidate.wine, c = candidate.components, parts = [];
+    if(c.flavor!==undefined && c._flavorOverlap.length>0){
+      var names = c._flavorOverlap.map(function(f){return FLAVOR_LABELS[f];}).join(" y ");
+      parts.push("coincide con tu preferencia por sabores "+names);
+    }
+    if(c.sweetness>=0.5) parts.push("es "+SWEETNESS_LABELS[wine.sweetness]+" como pediste");
+    if(c.intensity>=0.5) parts.push("tiene un cuerpo "+INTENSITY_LABELS[wine.intensity]+" acorde a lo que buscabas");
+    if(c.occasion>=0.6) parts.push("su estilo ("+wine.type+") combina bien con "+(OCCASION_LABELS[answers.occasion]||"tu ocasión"));
+    if(parts.length===0){
+      return "Ninguna coincidencia es exacta con tus respuestas, pero es la opción con mejor equilibrio general del catálogo disponible dentro de tu presupuesto.";
+    }
+    var joined = parts.length===1 ? parts[0] : parts.slice(0,-1).join(", ")+" y "+parts[parts.length-1];
+    return "Te la recomendamos porque "+joined+".";
+  }
+
+  function pickAlternative(sorted, primary){
+    var rest = sorted.filter(function(c){return c.wine.id!==primary.wine.id;});
+    if(rest.length===0) return null;
+    var trueSecond = rest[0];
+    var diverseType = rest.find(function(c){return c.wine.type!==primary.wine.type;});
+    if(diverseType && diverseType.score >= trueSecond.score-15) return diverseType;
+    return trueSecond;
+  }
+
+  function recommend(answers){
+    var requestedBudget = (answers.budgetMax===undefined || answers.budgetMax===null) ? Infinity : answers.budgetMax;
+    var budgetMax = requestedBudget;
+    var pool = CATALOG.filter(function(w){return w.priceBottle<=budgetMax;});
+    var budgetRelaxed = false;
+
+    if(pool.length===0){
+      var prices = Array.from(new Set(CATALOG.map(function(w){return w.priceBottle;}))).sort(function(a,b){return a-b;});
+      var nextTope = prices.find(function(p){return p>budgetMax;});
+      if(nextTope===undefined) nextTope = prices[prices.length-1];
+      budgetMax = nextTope;
+      pool = CATALOG.filter(function(w){return w.priceBottle<=budgetMax;});
+      budgetRelaxed = true;
+    }
+
+    var scored = pool.map(function(w){return scoreWine(w,answers);}).sort(function(a,b){return b.score-a.score;});
+    var primary = scored[0];
+    var alternative = pickAlternative(scored, primary);
+    if(!alternative){
+      var widerPool = CATALOG.filter(function(w){return w.id!==primary.wine.id;});
+      var widerScored = widerPool.map(function(w){return scoreWine(w,answers);}).sort(function(a,b){return b.score-a.score;});
+      alternative = pickAlternative(widerScored, primary);
+      if(alternative) budgetRelaxed = true;
+    }
+
+    function finish(candidate){
+      if(!candidate) return null;
+      return {
+        wine: candidate.wine,
+        score: candidate.score,
+        reason: buildReason(candidate, answers),
+        bottlePrice: candidate.wine.priceBottle,
+        samplePrice: samplePrice(candidate.wine.priceBottle),
+        overBudget: budgetRelaxed && candidate.wine.priceBottle > requestedBudget
+      };
+    }
+
+    return {
+      primary: finish(primary),
+      alternative: finish(alternative),
+      meta: {requestedBudget:requestedBudget, budgetRelaxed:budgetRelaxed, candidateCount:scored.length}
+    };
+  }
+
+  var DEMO_PROFILES = [
+    {id:"cena-especial",label:"Cena especial en pareja",answers:{occasion:"celebracion",flavors:["bayas_rojas","especiado"],sweetness:1,intensity:3,budgetMax:50}},
+    {id:"tarde-casual",label:"Tarde casual con amigos",answers:{occasion:"casual",flavors:["citrico","floral"],sweetness:2,intensity:1,budgetMax:15}},
+    {id:"regalo-cuidado",label:"Regalo para alguien que no conozco bien",answers:{occasion:"regalo",flavors:["ahumado_roble","terroso"],sweetness:1,intensity:2,budgetMax:30}}
+  ];
+
+  // ---- Interfaz ----
+
+  var OCCASION_OPTIONS = [
+    {value:"casual",label:"Casual"},
+    {value:"celebracion",label:"Celebración"},
+    {value:"regalo",label:"Regalo"},
+    {value:"cena_maridaje",label:"Cena con maridaje"}
+  ];
+  var FLAVOR_OPTIONS = Object.keys(FLAVOR_LABELS).map(function(k){return {value:k,label:FLAVOR_LABELS[k]};});
+  var SWEETNESS_OPTIONS = [{value:1,label:"Seco"},{value:2,label:"Semi-seco"},{value:3,label:"Dulce"}];
+  var INTENSITY_OPTIONS = [{value:1,label:"Ligero"},{value:2,label:"Medio"},{value:3,label:"Intenso"}];
+  var BUDGET_OPTIONS = BUDGET_TIERS.map(function(t){return {value:t.tope,label:t.label};});
+
+  var answers = {occasion:"casual", flavors:[], sweetness:2, intensity:2, budgetMax:30};
+  var result = null;
+  var selection = null; // {wine, bottlePrice, samplePrice, key: 'primary'|'alternative'}
+
+  function el(tag, attrs, children){
+    var node = document.createElement(tag);
+    Object.keys(attrs||{}).forEach(function(k){
+      if(k==="text") node.textContent = attrs[k];
+      else node.setAttribute(k, attrs[k]);
+    });
+    (children||[]).forEach(function(c){ node.appendChild(c); });
+    return node;
+  }
+
+  function renderSingleGroup(containerId, options, currentValue, onPick){
+    var container = document.getElementById(containerId);
+    container.innerHTML = "";
+    options.forEach(function(opt){
+      var active = opt.value===currentValue;
+      var btn = el("button", {type:"button","class":"chip","aria-pressed":active?"true":"false"});
+      btn.textContent = opt.label;
+      btn.addEventListener("click", function(){ onPick(opt.value); renderStep1(); });
+      container.appendChild(btn);
+    });
+  }
+
+  function renderMultiGroup(containerId, options, currentValues, onToggle){
+    var container = document.getElementById(containerId);
+    container.innerHTML = "";
+    options.forEach(function(opt){
+      var active = currentValues.indexOf(opt.value)!==-1;
+      var btn = el("button", {type:"button","class":"chip","aria-pressed":active?"true":"false"});
+      btn.textContent = opt.label;
+      btn.addEventListener("click", function(){ onToggle(opt.value); renderStep1(); });
+      container.appendChild(btn);
+    });
+  }
+
+  function renderStep1(){
+    renderSingleGroup("group-occasion", OCCASION_OPTIONS, answers.occasion, function(v){ answers.occasion=v; });
+    renderMultiGroup("group-flavors", FLAVOR_OPTIONS, answers.flavors, function(v){
+      var idx = answers.flavors.indexOf(v);
+      if(idx!==-1) answers.flavors.splice(idx,1);
+      else if(answers.flavors.length<3) answers.flavors.push(v);
+    });
+    renderSingleGroup("group-sweetness", SWEETNESS_OPTIONS, answers.sweetness, function(v){ answers.sweetness=v; });
+    renderSingleGroup("group-intensity", INTENSITY_OPTIONS, answers.intensity, function(v){ answers.intensity=v; });
+    renderSingleGroup("group-budget", BUDGET_OPTIONS, answers.budgetMax, function(v){ answers.budgetMax=v; });
+  }
+
+  function money(n){ return "$"+n; }
+
+  function wineCardNode(data, isPrimary){
+    var wrap = el("div", {"class":"wine-card"+(isPrimary?" primary":"")});
+    var top = el("div",{"class":"wine-top"});
+    var left = el("div");
+    left.appendChild(el("div",{"class":"badge-label",text:isPrimary?"Recomendación principal":"Alternativa"}));
+    left.appendChild(el("div",{"class":"wine-name",text:data.wine.name}));
+    left.appendChild(el("div",{"class":"wine-meta",text:data.wine.type.charAt(0).toUpperCase()+data.wine.type.slice(1)+" · "+data.wine.region}));
+    top.appendChild(left);
+    top.appendChild(el("span",{"class":"score",text:data.score+"% de coincidencia"}));
+    wrap.appendChild(top);
+    wrap.appendChild(el("p",{"class":"reason",text:data.reason}));
+    if(data.overBudget){
+      wrap.appendChild(el("span",{"class":"warn-chip",text:"Supera el presupuesto elegido ($"+answers.budgetMax+"): es la opción más cercana disponible en el catálogo."}));
+    }
+    var priceLine = el("div",{"class":"price-line"});
+    priceLine.textContent = "Botella "+money(data.bottlePrice)+" · Muestra "+money(data.samplePrice)+" ";
+    var tag = el("span",{"class":"demo-tag",text:"datos de demostración"});
+    priceLine.appendChild(tag);
+    wrap.appendChild(priceLine);
+    var pick = el("button",{type:"button","class":"btn btn-primary",text:"Elegir esta →"});
+    pick.addEventListener("click", function(){
+      selection = {wine:data.wine, bottlePrice:data.bottlePrice, samplePrice:data.samplePrice};
+      goToStep(3);
+    });
+    wrap.appendChild(pick);
+    return wrap;
+  }
+
+  function renderStep2(){
+    result = recommend(answers);
+    var pContainer = document.getElementById("result-primary");
+    var aContainer = document.getElementById("result-alternative");
+    pContainer.innerHTML = ""; aContainer.innerHTML = "";
+    pContainer.appendChild(wineCardNode(result.primary, true));
+    if(result.alternative) aContainer.appendChild(wineCardNode(result.alternative, false));
+  }
+
+  function renderStep3(){
+    document.getElementById("choice-title").textContent = selection.wine.name+": ¿botella o muestras?";
+    document.getElementById("choice-subtitle").textContent = "Precios de demostración, sin ningún pago real.";
+    document.getElementById("price-bottle").textContent = money(selection.bottlePrice);
+    document.getElementById("price-sample").textContent = money(selection.samplePrice);
+    var panel = document.getElementById("confirm-panel");
+    panel.hidden = true; panel.innerHTML = "";
+  }
+
+  function goToStep(n){
+    [1,2,3].forEach(function(i){
+      document.getElementById("step-"+i).hidden = (i!==n);
+      var dot = document.querySelector('[data-dot="'+i+'"]');
+      dot.className = "dot" + (i===n ? " active" : (i<n ? " done" : ""));
+    });
+    if(n===2) renderStep2();
+    if(n===3) renderStep3();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  document.getElementById("btn-recommend").addEventListener("click", function(){ goToStep(2); });
+  document.getElementById("btn-back-1").addEventListener("click", function(){ goToStep(1); });
+  document.getElementById("btn-back-2").addEventListener("click", function(){ goToStep(2); });
+  document.getElementById("btn-restart").addEventListener("click", function(){
+    answers = {occasion:"casual", flavors:[], sweetness:2, intensity:2, budgetMax:30};
+    selection = null;
+    renderStep1();
+    goToStep(1);
+  });
+
+  function confirmPurchase(kind){
+    var panel = document.getElementById("confirm-panel");
+    var price = kind==="bottle" ? selection.bottlePrice : selection.samplePrice;
+    var formatLabel = kind==="bottle" ? "botella (750 ml)" : "set de muestras (50 ml)";
+    panel.innerHTML = "";
+    var strong = el("strong", {text:"Elección registrada (simulación) ✔"});
+    panel.appendChild(strong);
+    var p1 = el("p", {text:selection.wine.name+" · "+formatLabel+" · "+money(price)});
+    p1.style.margin = "0 0 6px 0";
+    panel.appendChild(p1);
+    var p2 = el("p", {text:"Esto es un prototipo: no se procesó ningún pago ni pedido real, y no refleja disponibilidad real de este vino ni un convenio con ningún retailer."});
+    p2.style.margin = "0"; p2.style.fontSize = "0.82rem";
+    panel.appendChild(p2);
+    panel.hidden = false;
+  }
+  document.getElementById("btn-buy-bottle").addEventListener("click", function(){ confirmPurchase("bottle"); });
+  document.getElementById("btn-buy-sample").addEventListener("click", function(){ confirmPurchase("sample"); });
+
+  document.querySelectorAll(".demo-chip").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var id = btn.getAttribute("data-demo");
+      var profile = DEMO_PROFILES.find(function(p){return p.id===id;});
+      if(!profile) return;
+      answers = {
+        occasion: profile.answers.occasion,
+        flavors: profile.answers.flavors.slice(),
+        sweetness: profile.answers.sweetness,
+        intensity: profile.answers.intensity,
+        budgetMax: profile.answers.budgetMax
+      };
+      renderStep1();
+      goToStep(1);
+    });
+  });
+
+  renderStep1();
+  goToStep(1);
+})();
+</script>
