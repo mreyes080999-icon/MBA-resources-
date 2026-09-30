@@ -33,4 +33,24 @@ const rr = await findBestPrice("i", { identify: demoIdentify, stores: [ml] });
 assert.equal(rr.best.price, 6199); // el más barato está sin stock
 const bad = await findBestPrice("i", { identify: demoIdentify, stores: [makeMercadoLibre({ fetchImpl: meli({}, false) })] });
 assert.equal(bad.errors[0].store, "Mercado Libre");
+
+import { makeAmazon, signRequest } from "./amazon.js";
+const fixed = new Date("2026-09-30T12:00:00Z");
+const sig = () => signRequest({ host: "h", path: "/p", body: "{}", accessKey: "AK", secretKey: "SK", region: "us-east-1", target: "t", now: fixed });
+const s1 = sig();
+assert.equal(s1["x-amz-date"], "20260930T120000Z");
+assert.match(s1.authorization, /^AWS4-HMAC-SHA256 Credential=AK\/20260930\/us-east-1\/ProductAdvertisingAPI\/aws4_request, SignedHeaders=content-encoding;content-type;host;x-amz-date;x-amz-target, Signature=[0-9a-f]{64}$/);
+assert.equal(sig().authorization, s1.authorization); // determinista
+assert.notEqual(signRequest({ host: "h", path: "/p", body: "{}", accessKey: "AK", secretKey: "OTRA", region: "us-east-1", target: "t", now: fixed }).authorization, s1.authorization);
+let areq;
+const azItems = [
+  { DetailPageURL: "https://amzn/x", ItemInfo: { Title: { DisplayValue: "Sony WH-1000XM5 Black" } }, Offers: { Listings: [{ Price: { Amount: 6499 }, Availability: { Type: "Now" } }] } },
+  { DetailPageURL: "https://amzn/z", ItemInfo: { Title: { DisplayValue: "Sony WH-1000XM5 Black" } } },
+];
+const az = makeAmazon({ accessKey: "AK", secretKey: "SK", partnerTag: "tag-20", now: fixed, fetchImpl: async (u, o) => { areq = { u, o }; return { ok: true, json: async () => ({ SearchResult: { Items: azItems } }) }; } });
+const ag = await az.search("sony wh-1000xm5 black");
+assert.equal(areq.u, "https://webservices.amazon.com.mx/paapi5/searchitems");
+assert.equal(JSON.parse(areq.o.body).PartnerTag, "tag-20");
+assert.deepEqual(ag.map((o) => [o.price, o.inStock, o.url]), [[6499, true, "https://amzn/x"]]); // sin oferta se omite
+await assert.rejects(makeAmazon({ accessKey: "", secretKey: "", partnerTag: "" }).search("x"), /Faltan/);
 console.log("OK");
