@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mejor Precio</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#15181d; --muted:#5d6675; --line:#dfe3ea; --accent:#0b6e4f; --accent-ink:#fff; --warn:#8a5a00; --warn-bg:#fff4d6; --err:#a32020; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111418; --card:#1a1e24; --ink:#eceff4; --muted:#9aa4b2; --line:#2b323c; --accent:#3ecf9b; --accent-ink:#06261b; --warn:#f0c15a; --warn-bg:#33290f; --err:#ff8a8a; } }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
+  main { max-width:640px; margin:0 auto; padding:24px 16px 48px; }
+  h1 { font-size:1.5rem; margin:0 0 4px; } .sub { color:var(--muted); margin:0 0 20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px; margin-top:16px; }
+  #drop { display:block; border:2px dashed var(--line); border-radius:12px; padding:28px 16px; text-align:center; cursor:pointer; color:var(--muted); }
+  #drop:hover, #drop:focus-within, #drop.over { border-color:var(--accent); }
+  #drop input { position:absolute; opacity:0; width:1px; height:1px; }
+  #preview { display:none; max-width:100%; max-height:240px; border-radius:8px; margin:0 auto; }
+  .banner { background:var(--warn-bg); color:var(--warn); border-radius:8px; padding:8px 12px; font-size:.9rem; margin-top:16px; }
+  .best { border:2px solid var(--accent); } .label { color:var(--accent); font-weight:700; letter-spacing:.06em; font-size:.8rem; }
+  .price { font-size:2rem; font-weight:700; } .store { color:var(--muted); }
+  a.btn { display:inline-block; margin-top:8px; background:var(--accent); color:var(--accent-ink); padding:10px 18px; border-radius:8px; text-decoration:none; font-weight:600; }
+  ol { list-style:none; padding:0; margin:0; } li { display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--line); } li:first-child { border-top:0; }
+  li a { color:var(--ink); } .err { color:var(--err); } .muted { color:var(--muted); font-size:.9rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Mejor precio</h1>
+  <p class="sub">Sube una foto de un producto y comparamos precios entre tiendas.</p>
+  <label id="drop"><input id="file" type="file" accept="image/jpeg,image/png,image/gif,image/webp"><img id="preview" alt="Vista previa"><span id="hint">Toca para elegir una foto o arrástrala aquí</span></label>
+  <div id="out" aria-live="polite"></div>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const money = (n) => new Intl.NumberFormat("es-MX", { style:"currency", currency:"MXN", maximumFractionDigits:0 }).format(n);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const safeUrl = (u) => /^https?:\/\//.test(u) ? esc(u) : "#";
+
+async function handle(file) {
+  if (!file) return;
+  const dataUrl = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(file); });
+  $("preview").src = dataUrl; $("preview").style.display = "block"; $("hint").style.display = "none";
+  $("out").innerHTML = '<div class="card muted">Identificando producto y buscando precios…</div>';
+  await search(dataUrl);
+}
+
+const pw = { get: () => { try { return sessionStorage.getItem("pw") ?? ""; } catch { return ""; } }, set: (v) => { try { sessionStorage.setItem("pw", v); } catch {} } };
+
+async function search(dataUrl) {
+  try {
+    const res = await fetch("/api/search", { method:"POST", headers:{ "content-type":"application/json", "x-app-password": pw.get() }, body: JSON.stringify({ image: dataUrl }) });
+    const d = await res.json();
+    if (res.status === 401) return askPassword(dataUrl, pw.get() ? d.error : "");
+    if (!res.ok) throw new Error(d.error);
+    render(d);
+  } catch (e) { $("out").innerHTML = `<div class="card err">${esc(e.message)}</div>`; }
+}
+
+function askPassword(dataUrl, error) {
+  $("out").innerHTML = `<form class="card" id="pwform"><label for="pw">Contraseña de acceso</label><br>
+    <input id="pw" type="password" autocomplete="current-password" required style="margin:8px 8px 0 0;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)">
+    <button class="btn" style="border:0;cursor:pointer;font:inherit;font-weight:600">Entrar</button>${error ? `<div class="err">${esc(error)}</div>` : ""}</form>`;
+  $("pw").focus();
+  $("pwform").addEventListener("submit", (e) => { e.preventDefault(); pw.set($("pw").value); $("out").innerHTML = '<div class="card muted">Buscando…</div>'; search(dataUrl); });
+}
+
+function render(d) {
+  const banner = d.demo ? '<div class="banner">Modo demo: producto y precios de ejemplo, no reales.</div>' : "";
+  const errs = d.errors.map((e) => `<div class="err muted">${esc(e.store)}: no respondió (${esc(e.error)})</div>`).join("");
+  if (!d.best) { $("out").innerHTML = `${banner}<div class="card"><b>${esc(d.product)}</b><p>No encontramos ofertas disponibles.</p>${errs}</div>`; return; }
+  const rows = d.ranked.map((o) => `<li><span>${esc(o.store)}<br><a class="muted" href="${safeUrl(o.url)}" target="_blank" rel="noopener noreferrer">${esc(o.title)}</a></span><b>${money(o.total)}</b></li>`).join("");
+  $("out").innerHTML = `${banner}
+    <div class="card muted">Producto identificado: <b style="color:var(--ink)">${esc(d.product)}</b></div>
+    <div class="card best"><div class="label">MEJOR PRECIO</div><div class="price">${money(d.best.total)}</div><div class="store">${esc(d.best.store)}</div>
+      <a class="btn" href="${safeUrl(d.best.url)}" target="_blank" rel="noopener noreferrer">Ver producto</a></div>
+    <div class="card"><ol>${rows}</ol>${errs}<p class="muted">Precio sin envío cuando la tienda no lo informa.</p></div>`;
+}
+$("file").addEventListener("change", (e) => handle(e.target.files[0]));
+["dragover","dragenter"].forEach((t) => $("drop").addEventListener(t, (e) => { e.preventDefault(); $("drop").classList.add("over"); }));
+["dragleave","drop"].forEach((t) => $("drop").addEventListener(t, () => $("drop").classList.remove("over")));
+$("drop").addEventListener("drop", (e) => { e.preventDefault(); handle(e.dataTransfer.files[0]); });
+</script>
+</body>
+</html>
