@@ -14,6 +14,8 @@ en paralelo → ranking por precio total (precio + envío) → mejor oferta.
 
 **Validar rápido:** `./validar.sh` (Mac/Linux) o `validar.bat` (Windows) — corre las pruebas y abre la web en modo demo. Solo requiere Node 18+.
 
+**Probar con llaves reales:** `ANTHROPIC_API_KEY=... AMAZON_ACCESS_KEY=... AMAZON_SECRET_KEY=... AMAZON_PARTNER_TAG=... node diagnostico.mjs foto.jpg` prueba Claude, Mercado Libre y Amazon por separado e indica cuál falla y por qué (no imprime llaves).
+
 ```
 node server.mjs # web en http://localhost:3000 (PORT para cambiar)
 node test.mjs   # pruebas
