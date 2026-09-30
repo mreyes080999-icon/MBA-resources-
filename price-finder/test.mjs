@@ -53,4 +53,15 @@ assert.equal(areq.u, "https://webservices.amazon.com.mx/paapi5/searchitems");
 assert.equal(JSON.parse(areq.o.body).PartnerTag, "tag-20");
 assert.deepEqual(ag.map((o) => [o.price, o.inStock, o.url]), [[6499, true, "https://amzn/x"]]); // sin oferta se omite
 await assert.rejects(makeAmazon({ accessKey: "", secretKey: "", partnerTag: "" }).search("x"), /Faltan/);
+
+import { makeServer } from "./server.mjs";
+const srv = makeServer(() => ({ identify: demoIdentify, stores: demoStores, demo: true })).listen(0);
+await new Promise((ok) => srv.once("listening", ok));
+const base = `http://127.0.0.1:${srv.address().port}`;
+assert.match(await (await fetch(base + "/")).text(), /^<!doctype html>/); // sirve HTML, no un Buffer serializado
+const post = (image) => fetch(base + "/api/search", { method: "POST", body: JSON.stringify({ image }) });
+const ok = await (await post("data:image/png;base64,eA==")).json();
+assert.equal(ok.best.store, "Amazon");
+assert.equal((await post("no-es-imagen")).status, 400);
+srv.close();
 console.log("OK");

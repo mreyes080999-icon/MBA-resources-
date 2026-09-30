@@ -7,11 +7,12 @@ const PROMPT = "Identifica el producto de la imagen. Responde SOLO con marca, mo
   "(ej. \"Sony WH-1000XM5 Black\"), sin texto extra. Si no puedes identificar marca y modelo con seguridad, responde exactamente UNKNOWN.";
 
 export function makeClaudeIdentify({ apiKey = process.env.ANTHROPIC_API_KEY, model = "claude-sonnet-5-5", fetchImpl = fetch } = {}) {
-  return async (imagePath) => {
+  // image: ruta de archivo, o { data: base64, mediaType } cuando viene de la web.
+  return async (image) => {
     if (!apiKey) throw new Error("Falta ANTHROPIC_API_KEY");
-    const media_type = MEDIA[extname(imagePath).toLowerCase()];
-    if (!media_type) throw new Error(`Formato de imagen no soportado: ${imagePath}`);
-    const data = (await readFile(imagePath)).toString("base64");
+    const media_type = typeof image === "string" ? MEDIA[extname(image).toLowerCase()] : image.mediaType;
+    if (!Object.values(MEDIA).includes(media_type)) throw new Error(`Formato de imagen no soportado: ${typeof image === "string" ? image : media_type}`);
+    const data = typeof image === "string" ? (await readFile(image)).toString("base64") : image.data;
     const res = await fetchImpl("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },

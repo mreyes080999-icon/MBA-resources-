@@ -10,7 +10,10 @@ en paralelo → ranking por precio total (precio + envío) → mejor oferta.
 - `demo-adapters.js` — identificador y tiendas **de demostración** (datos falsos). Sustituir por visión (API de Claude con imagen) y APIs reales de cada tienda; contrato: `search(query) -> [{title, price, shipping?, url, inStock?}]`.
 - Una tienda que falla no rompe la búsqueda; se reporta en `errors`.
 
+- `server.mjs` + `index.html` — interfaz web: subes una foto y ves la tarjeta MEJOR PRECIO con "Ver producto". Las llaves se quedan en el servidor. Sin `ANTHROPIC_API_KEY` y `LIVE_STORES` corre en modo demo (con aviso visible).
+
 ```
+node server.mjs # web en http://localhost:3000 (PORT para cambiar)
 node test.mjs   # pruebas
 node cli.mjs    # demo
 ```
