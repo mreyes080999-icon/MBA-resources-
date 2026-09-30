@@ -19,6 +19,7 @@ export function makeServer(getConfig = config) {
   return createServer(async (req, res) => {
     const send = (code, body, type = "application/json") => { res.writeHead(code, { "content-type": type }); res.end(typeof body === "string" || Buffer.isBuffer(body) ? body : JSON.stringify(body)); };
     try {
+      if (req.method === "GET" && req.url === "/healthz") return send(200, { ok: true });
       if (req.method === "GET" && req.url === "/") return send(200, await readFile(new URL("./index.html", import.meta.url)), "text/html; charset=utf-8");
       if (req.method === "POST" && req.url === "/api/search") {
         let size = 0; const chunks = [];

@@ -59,6 +59,7 @@ const srv = makeServer(() => ({ identify: demoIdentify, stores: demoStores, demo
 await new Promise((ok) => srv.once("listening", ok));
 const base = `http://127.0.0.1:${srv.address().port}`;
 assert.match(await (await fetch(base + "/")).text(), /^<!doctype html>/); // sirve HTML, no un Buffer serializado
+assert.equal((await fetch(base + "/healthz")).status, 200);
 const post = (image) => fetch(base + "/api/search", { method: "POST", body: JSON.stringify({ image }) });
 const ok = await (await post("data:image/png;base64,eA==")).json();
 assert.equal(ok.best.store, "Amazon");

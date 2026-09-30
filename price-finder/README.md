@@ -17,3 +17,16 @@ node server.mjs # web en http://localhost:3000 (PORT para cambiar)
 node test.mjs   # pruebas
 node cli.mjs    # demo
 ```
+
+## Despliegue con Docker
+```
+docker build -t price-finder .
+docker run -p 3000:3000 \
+  -e ANTHROPIC_API_KEY=... -e LIVE_STORES=1 \
+  -e AMAZON_ACCESS_KEY=... -e AMAZON_SECRET_KEY=... -e AMAZON_PARTNER_TAG=... \
+  -e MELI_ACCESS_TOKEN=... \
+  price-finder
+```
+- Las llaves se pasan como variables de entorno (o secretos de la plataforma); nunca van en la imagen. Sin ellas corre en modo demo.
+- Escucha en `PORT` (3000 por defecto) y expone `/healthz` para el healthcheck de la plataforma.
+- **Ojo:** el endpoint `/api/search` no tiene autenticación ni límite de uso y cada búsqueda consume tu API de Claude. Ponlo detrás de un acceso restringido (VPN, proxy con autenticación) antes de publicarlo en internet.
