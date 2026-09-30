@@ -12,6 +12,8 @@ en paralelo → ranking por precio total (precio + envío) → mejor oferta.
 
 - `server.mjs` + `index.html` — interfaz web: subes una foto y ves la tarjeta MEJOR PRECIO con "Ver producto". Las llaves se quedan en el servidor. Sin `ANTHROPIC_API_KEY` y `LIVE_STORES` corre en modo demo (con aviso visible).
 
+**Validar rápido:** `./validar.sh` (Mac/Linux) o `validar.bat` (Windows) — corre las pruebas y abre la web en modo demo. Solo requiere Node 18+.
+
 ```
 node server.mjs # web en http://localhost:3000 (PORT para cambiar)
 node test.mjs   # pruebas
