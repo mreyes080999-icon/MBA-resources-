@@ -20,4 +20,17 @@ assert.equal(sent.messages[0].content[0].source.media_type, "image/png");
 await assert.rejects(makeClaudeIdentify({ apiKey: "k", fetchImpl: fake("UNKNOWN") })("/tmp/_t.png"), /No se pudo/);
 await assert.rejects(makeClaudeIdentify({ apiKey: "k", fetchImpl: fake("x", false) })("/tmp/_t.png"), /401/);
 await assert.rejects(makeClaudeIdentify({ apiKey: "" })("/tmp/_t.png"), /ANTHROPIC_API_KEY/);
+
+import { makeMercadoLibre } from "./mercadolibre.js";
+let url, hdr;
+const meli = (body, ok = true) => async (u, o) => { url = u; hdr = o.headers; return { ok, status: ok ? 200 : 403, json: async () => body }; };
+const rows = [{ title: "Sony WH-1000XM5 Black", price: 6199, permalink: "https://ml/x", available_quantity: 3 }, { title: "Sony WH-1000XM5 Black", price: 5000, permalink: "https://ml/y", available_quantity: 0 }];
+const ml = makeMercadoLibre({ token: "T", fetchImpl: meli({ results: rows }) });
+const got = await ml.search("sony wh-1000xm5 black");
+assert.ok(url.includes("/sites/MLM/search?q=sony%20wh-1000xm5%20black") && hdr.authorization === "Bearer T");
+assert.deepEqual(got.map((o) => [o.price, o.inStock, o.url]), [[6199, true, "https://ml/x"], [5000, false, "https://ml/y"]]);
+const rr = await findBestPrice("i", { identify: demoIdentify, stores: [ml] });
+assert.equal(rr.best.price, 6199); // el más barato está sin stock
+const bad = await findBestPrice("i", { identify: demoIdentify, stores: [makeMercadoLibre({ fetchImpl: meli({}, false) })] });
+assert.equal(bad.errors[0].store, "Mercado Libre");
 console.log("OK");
