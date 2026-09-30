@@ -25,7 +25,8 @@ docker run -p 3000:3000 \
   -e ANTHROPIC_API_KEY=... -e LIVE_STORES=1 \
   -e AMAZON_ACCESS_KEY=... -e AMAZON_SECRET_KEY=... -e AMAZON_PARTNER_TAG=... \
   -e MELI_ACCESS_TOKEN=... \
-  price-finder
+  -e APP_PASSWORD=... \
+  price-finder   # añade -e TRUST_PROXY=1 solo si hay un proxy/balanceador delante
 ```
 - Las llaves se pasan como variables de entorno (o secretos de la plataforma); nunca van en la imagen. Sin ellas corre en modo demo.
 - Escucha en `PORT` (3000 por defecto) y expone `/healthz` para el healthcheck de la plataforma.
