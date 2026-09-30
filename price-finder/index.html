@@ -42,12 +42,27 @@ async function handle(file) {
   const dataUrl = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(file); });
   $("preview").src = dataUrl; $("preview").style.display = "block"; $("hint").style.display = "none";
   $("out").innerHTML = '<div class="card muted">Identificando producto y buscando precios…</div>';
+  await search(dataUrl);
+}
+
+const pw = { get: () => { try { return sessionStorage.getItem("pw") ?? ""; } catch { return ""; } }, set: (v) => { try { sessionStorage.setItem("pw", v); } catch {} } };
+
+async function search(dataUrl) {
   try {
-    const res = await fetch("/api/search", { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ image: dataUrl }) });
+    const res = await fetch("/api/search", { method:"POST", headers:{ "content-type":"application/json", "x-app-password": pw.get() }, body: JSON.stringify({ image: dataUrl }) });
     const d = await res.json();
+    if (res.status === 401) return askPassword(dataUrl, pw.get() ? d.error : "");
     if (!res.ok) throw new Error(d.error);
     render(d);
   } catch (e) { $("out").innerHTML = `<div class="card err">${esc(e.message)}</div>`; }
+}
+
+function askPassword(dataUrl, error) {
+  $("out").innerHTML = `<form class="card" id="pwform"><label for="pw">Contraseña de acceso</label><br>
+    <input id="pw" type="password" autocomplete="current-password" required style="margin:8px 8px 0 0;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)">
+    <button class="btn" style="border:0;cursor:pointer;font:inherit;font-weight:600">Entrar</button>${error ? `<div class="err">${esc(error)}</div>` : ""}</form>`;
+  $("pw").focus();
+  $("pwform").addEventListener("submit", (e) => { e.preventDefault(); pw.set($("pw").value); $("out").innerHTML = '<div class="card muted">Buscando…</div>'; search(dataUrl); });
 }
 
 function render(d) {

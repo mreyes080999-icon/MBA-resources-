@@ -65,4 +65,26 @@ const ok = await (await post("data:image/png;base64,eA==")).json();
 assert.equal(ok.best.store, "Amazon");
 assert.equal((await post("no-es-imagen")).status, 400);
 srv.close();
+
+import { makeLimiter } from "./server.mjs";
+let clock = 0;
+const lim = makeLimiter(2, 1000, () => clock);
+assert.deepEqual([lim.hit("a"), lim.hit("a"), lim.hit("a"), lim.hit("b")], [true, true, false, true]);
+clock = 1001; assert.equal(lim.hit("a"), true); // la ventana expira
+
+const cfg = () => ({ identify: demoIdentify, stores: demoStores, demo: true });
+const guarded = makeServer(cfg, { password: "s3cret", rateMax: 2, rateWindowMs: 60000 }).listen(0);
+await new Promise((ok) => guarded.once("listening", ok));
+const gpost = (pw) => fetch(`http://127.0.0.1:${guarded.address().port}/api/search`, { method: "POST", headers: pw ? { "x-app-password": pw } : {}, body: JSON.stringify({ image: "data:image/png;base64,eA==" }) });
+assert.equal((await gpost()).status, 401);
+assert.equal((await gpost("mala")).status, 401);
+assert.equal((await gpost("s3cret")).status, 200);
+assert.equal((await gpost("s3cret")).status, 200);
+assert.equal((await gpost("s3cret")).status, 429); // 3.ª búsqueda válida excede el límite de 2
+guarded.close();
+const bf = makeServer(cfg, { password: "s3cret" }).listen(0);
+await new Promise((ok) => bf.once("listening", ok));
+let last; for (let i = 0; i < 11; i++) last = (await fetch(`http://127.0.0.1:${bf.address().port}/api/search`, { method: "POST", headers: { "x-app-password": "x" }, body: "{}" })).status;
+assert.equal(last, 429); // fuerza bruta: el intento 11 se bloquea
+bf.close();
 console.log("OK");

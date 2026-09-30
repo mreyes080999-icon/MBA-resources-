@@ -29,4 +29,9 @@ docker run -p 3000:3000 \
 ```
 - Las llaves se pasan como variables de entorno (o secretos de la plataforma); nunca van en la imagen. Sin ellas corre en modo demo.
 - Escucha en `PORT` (3000 por defecto) y expone `/healthz` para el healthcheck de la plataforma.
-- **Ojo:** el endpoint `/api/search` no tiene autenticación ni límite de uso y cada búsqueda consume tu API de Claude. Ponlo detrás de un acceso restringido (VPN, proxy con autenticación) antes de publicarlo en internet.
+- **Acceso y límites** (variables de entorno del servidor):
+  - `APP_PASSWORD` — si se define, `/api/search` exige esa contraseña (la web la pide y la recuerda en la pestaña). **Defínela siempre en modo real**; sin ella el servidor avisa al arrancar.
+  - `RATE_LIMIT` (20) y `RATE_WINDOW_MIN` (60) — búsquedas válidas por IP en la ventana. Más de 10 contraseñas fallidas por IP en 15 min se bloquean.
+  - `TRUST_PROXY=1` — si va detrás de un proxy/balanceador (un salto), toma la IP real de `X-Forwarded-For`. Sin esto todos los usuarios compartirían la IP del proxy y el límite sería global.
+  - Los límites viven en memoria del proceso: se reinician al redeplegar y no se comparten entre réplicas. Usa una sola instancia o pon el límite en el proxy.
+  - Usa HTTPS (el proxy de tu plataforma); la contraseña viaja en una cabecera.
